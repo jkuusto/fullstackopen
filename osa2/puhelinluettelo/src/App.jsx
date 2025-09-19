@@ -61,6 +61,15 @@ const App = () => {
             );
             resetForm();
             showNotification(`Updated ${returnedPerson.name}`);
+          })
+          .catch((error) => {
+            showNotification(
+              `Information of ${existingPerson.name} has already been removed from server`
+            );
+            setPersons(
+              persons.filter((person) => person.id !== existingPerson.id)
+            );
+            resetForm();
           });
       }
       return;
