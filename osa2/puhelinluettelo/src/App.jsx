@@ -1,4 +1,7 @@
-import { Filter, PersonForm, Persons } from "./components/Persons";
+import Filter from "./components/Filter";
+import Notification from "./components/Notification";
+import PersonForm from "./components/PersonForm";
+import Persons from "./components/Persons";
 import { useState, useEffect } from "react";
 import personService from "./services/personservices";
 
@@ -7,16 +10,25 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [newFilter, setNewFilter] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => setPersons(initialPersons));
   }, []);
+
+  const showNotification = (message) => {
+    setNotificationMessage(message);
+    setTimeout(() => {
+      setNotificationMessage(null);
+    }, 5000);
+  };
 
   const deletePersonId = (id) => {
     const person = persons.find((person) => person.id === id);
     if (window.confirm(`Delete ${person.name} ?`)) {
       personService.deleteId(id).then((response) => {
         setPersons(persons.filter((person) => person.id !== id));
+        showNotification(`Deleted ${person.name}`);
       });
     }
   };
@@ -48,6 +60,7 @@ const App = () => {
               )
             );
             resetForm();
+            showNotification(`Updated ${returnedPerson.name}`);
           });
       }
       return;
@@ -59,6 +72,7 @@ const App = () => {
     personService.create(personObject).then((returnedPerson) => {
       setPersons(persons.concat(returnedPerson));
       resetForm();
+      showNotification(`Added ${returnedPerson.name}`);
     });
   };
 
@@ -85,6 +99,8 @@ const App = () => {
   return (
     <main>
       <h2>Phonebook</h2>
+
+      <Notification message={notificationMessage} />
 
       <Filter filter={newFilter} handleFilterChange={handleFilterChange} />
 
