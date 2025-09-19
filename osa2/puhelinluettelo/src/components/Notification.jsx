@@ -1,6 +1,5 @@
-const Notification = ({ message }) => {
-  const notificationStyle = {
-    color: "green",
+const Notification = ({ message, type = "success" }) => {
+  const baseStyle = {
     background: "lightgrey",
     fontSize: 20,
     borderStyle: "solid",
@@ -9,12 +8,26 @@ const Notification = ({ message }) => {
     marginBottom: 10,
   };
 
-  if (message === null) {
+  const successStyle = {
+    ...baseStyle,
+    color: "green",
+    borderColor: "green",
+  };
+
+  const errorStyle = {
+    ...baseStyle,
+    color: "red",
+    borderColor: "red",
+  };
+
+  const notificationStyle = type === "error" ? errorStyle : successStyle;
+
+  if (!message) {
     return null;
   }
 
   return (
-    <section style={notificationStyle} className="notification">
+    <section style={notificationStyle} className={`notification ${type}`}>
       {message}
     </section>
   );
