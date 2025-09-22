@@ -1,4 +1,9 @@
-const Countries = ({ countries, selectedCountry, onCountrySelect }) => {
+const Countries = ({
+  countries,
+  selectedCountry,
+  onCountrySelect,
+  weatherData,
+}) => {
   const showCountryDetails = (country) => {
     const languages = Object.values(country.languages);
 
@@ -14,6 +19,19 @@ const Countries = ({ countries, selectedCountry, onCountrySelect }) => {
           ))}
         </ul>
         <img src={country.flags.png} />
+        <h2>Weather in {country.capital}</h2>
+        {weatherData ? (
+          <>
+            <p>Temperature {weatherData.main.temp} Celsius</p>
+            <img
+              src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
+              alt={weatherData.weather[0].description}
+            />
+            <p>Wind {weatherData.wind.speed} m/s</p>
+          </>
+        ) : (
+          <p>Loading weather data...</p>
+        )}
       </section>
     );
   };
