@@ -79,11 +79,17 @@ const App = () => {
       name: newName,
       number: newNumber,
     };
-    personService.create(personObject).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson));
-      resetForm();
-      showNotification(`Added ${returnedPerson.name}`);
-    });
+    personService
+      .create(personObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        resetForm();
+        showNotification(`Added ${returnedPerson.name}`);
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+        showNotification(error.response.data.error, "error");
+      });
   };
 
   const handleNameChange = (event) => {
