@@ -31,7 +31,7 @@ app.get("/", (request, response) => {
   response.send("<h1>Backend Front Page</h1>");
 });
 
-app.get("/info", (request, response) => {
+app.get("/info", (request, response, next) => {
   const date = new Date();
   Person.find({})
     .then((persons) => {
@@ -98,7 +98,7 @@ app.put("/api/persons/:id", (request, response, next) => {
 
 app.delete("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then((result) => {
+    .then(() => {
       response.status(204).end();
     })
     .catch((error) => next(error));

@@ -26,7 +26,7 @@ const App = () => {
   const deletePersonId = (id) => {
     const person = persons.find((person) => person.id === id);
     if (window.confirm(`Delete ${person.name} ?`)) {
-      personService.deleteId(id).then((response) => {
+      personService.deleteId(id).then(() => {
         setPersons(persons.filter((person) => person.id !== id));
         showNotification(`Deleted ${person.name}`);
       });
@@ -62,7 +62,7 @@ const App = () => {
             resetForm();
             showNotification(`Updated ${returnedPerson.name}`);
           })
-          .catch((error) => {
+          .catch(() => {
             showNotification(
               `Information of ${existingPerson.name} has already been removed from server`,
               "error"
