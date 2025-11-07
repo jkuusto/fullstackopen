@@ -66,7 +66,7 @@ describe("when there are initially some blogs saved", () => {
   });
 
   describe("addition of a new blog", () => {
-    let userId;
+    let token;
 
     beforeEach(async () => {
       await User.deleteMany({});
@@ -75,7 +75,11 @@ describe("when there are initially some blogs saved", () => {
       const user = new User({ username: "root", passwordHash });
       await user.save();
 
-      userId = user.id;
+      const loginResponse = await api
+        .post("/api/login")
+        .send({ username: "root", password: "password123" });
+
+      token = loginResponse.body.token;
     });
 
     test("succeeds with valid data", async () => {
@@ -83,12 +87,12 @@ describe("when there are initially some blogs saved", () => {
         title: "How to Add a Blog to a Blog List",
         author: "John Blogger",
         url: "http://example.com/how-to-add-blog",
-        userId: userId,
         likes: 1,
       };
 
       await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/);
@@ -105,11 +109,11 @@ describe("when there are initially some blogs saved", () => {
         title: "Nobody Likes This",
         author: "Unlikable Author",
         url: "http://example.com/no-likes",
-        userId: userId,
       };
 
       await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/);
@@ -123,11 +127,14 @@ describe("when there are initially some blogs saved", () => {
       const newBlog = {
         author: "John Blogger",
         url: "http://example.com/how-to-add-blog",
-        userId: userId,
         likes: 1,
       };
 
-      await api.post("/api/blogs").send(newBlog).expect(400);
+      await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
+        .send(newBlog)
+        .expect(400);
 
       const blogsAtEnd = await helper.blogsInDb();
 
@@ -138,11 +145,14 @@ describe("when there are initially some blogs saved", () => {
       const newBlog = {
         title: "How to Add a Blog to a Blog List",
         author: "John Blogger",
-        userId: userId,
         likes: 1,
       };
 
-      await api.post("/api/blogs").send(newBlog).expect(400);
+      await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
+        .send(newBlog)
+        .expect(400);
 
       const blogsAtEnd = await helper.blogsInDb();
 
