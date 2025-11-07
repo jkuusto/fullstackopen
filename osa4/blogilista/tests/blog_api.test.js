@@ -66,11 +66,24 @@ describe("when there are initially some blogs saved", () => {
   });
 
   describe("addition of a new blog", () => {
+    let userId;
+
+    beforeEach(async () => {
+      await User.deleteMany({});
+
+      const passwordHash = await bcrypt.hash("password123", 10);
+      const user = new User({ username: "root", passwordHash });
+      await user.save();
+
+      userId = user.id;
+    });
+
     test("succeeds with valid data", async () => {
       const newBlog = {
         title: "How to Add a Blog to a Blog List",
         author: "John Blogger",
         url: "http://example.com/how-to-add-blog",
+        userId: userId,
         likes: 1,
       };
 
@@ -92,6 +105,7 @@ describe("when there are initially some blogs saved", () => {
         title: "Nobody Likes This",
         author: "Unlikable Author",
         url: "http://example.com/no-likes",
+        userId: userId,
       };
 
       await api
@@ -109,6 +123,7 @@ describe("when there are initially some blogs saved", () => {
       const newBlog = {
         author: "John Blogger",
         url: "http://example.com/how-to-add-blog",
+        userId: userId,
         likes: 1,
       };
 
@@ -123,6 +138,7 @@ describe("when there are initially some blogs saved", () => {
       const newBlog = {
         title: "How to Add a Blog to a Blog List",
         author: "John Blogger",
+        userId: userId,
         likes: 1,
       };
 
