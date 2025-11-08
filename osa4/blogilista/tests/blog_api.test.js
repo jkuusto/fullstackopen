@@ -66,8 +66,6 @@ describe("when there are initially some blogs saved", () => {
   });
 
   describe("addition of a new blog", () => {
-    let token;
-
     beforeEach(async () => {
       await User.deleteMany({});
 
@@ -161,30 +159,74 @@ describe("when there are initially some blogs saved", () => {
   });
 
   describe("deletion of a blog", () => {
+    beforeEach(async () => {
+      await User.deleteMany({});
+      await Blog.deleteMany({});
+
+      const passwordHash = await bcrypt.hash("password123", 10);
+      const user = new User({ username: "root", passwordHash });
+      await user.save();
+
+      const loginResponse = await api
+        .post("/api/login")
+        .send({ username: "root", password: "password123" });
+
+      token = loginResponse.body.token;
+
+      await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          title: "Delete This Blog",
+          author: "John Doe",
+          url: "http://example.com/delete-this-blog",
+          likes: 1,
+        });
+
+      await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          title: "Just Another Blog",
+          author: "Jane Smith",
+          url: "http://example.com/just-another-blog",
+          likes: 1,
+        });
+    });
+
     test("succeeds with status code 204 if id is valid", async () => {
       const blogsAtStart = await helper.blogsInDb();
       const blogToDelete = blogsAtStart[0];
 
-      await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+      await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204);
 
       const blogsAtEnd = await helper.blogsInDb();
 
       const ids = blogsAtEnd.map((n) => n.id);
       assert(!ids.includes(blogToDelete.id));
 
-      assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1);
+      assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
     });
 
     test("succeeds with status code 204 if blog is already deleted", async () => {
       const nonexistingId = await helper.nonExistingId();
 
-      await api.delete(`/api/blogs/${nonexistingId}`).expect(204);
+      await api
+        .delete(`/api/blogs/${nonexistingId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204);
     });
 
     test("fails with status code 400 if id is invalid", async () => {
       const invalidId = "6b4e6fb60181192b93b4556";
 
-      await api.delete(`/api/blogs/${invalidId}`).expect(400);
+      await api
+        .delete(`/api/blogs/${invalidId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(400);
     });
   });
 
