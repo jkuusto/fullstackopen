@@ -156,6 +156,21 @@ describe("when there are initially some blogs saved", () => {
 
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
     });
+
+    test("fails with status code 401 if token missing from request", async () => {
+      const newBlog = {
+        title: "How to Add a Blog to a Blog List",
+        author: "John Blogger",
+        url: "http://example.com/how-to-add-blog",
+        likes: 1,
+      };
+
+      await api.post("/api/blogs").send(newBlog).expect(401);
+
+      const blogsAtEnd = await helper.blogsInDb();
+
+      assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+    });
   });
 
   describe("deletion of a blog", () => {
