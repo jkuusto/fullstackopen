@@ -112,6 +112,10 @@ const App = () => {
     );
   }
 
+  const buttonStyle = {
+    marginLeft: 4,
+  };
+
   return (
     <div>
       <h2>blogs</h2>
@@ -123,6 +127,7 @@ const App = () => {
             window.localStorage.removeItem(STORAGE_USER);
             setUser(null);
           }}
+          style={buttonStyle}
         >
           logout
         </button>
