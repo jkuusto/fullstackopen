@@ -45,7 +45,7 @@ const App = () => {
         showNotification(
           `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
         );
-        setBlogs(blogs.concat(returnedBlog));
+        setBlogs(blogs.concat({ ...returnedBlog, user: user }));
       })
       .catch((error) => {
         showNotification(
@@ -87,8 +87,8 @@ const App = () => {
       .update(id, updatedBlog)
       .then((returnedBlog) => {
         setBlogs(
-          blogs.map((blog) =>
-            blog.id !== id ? blog : { ...returnedBlog, user: blog.user },
+          blogs.map((b) =>
+            b.id !== id ? b : { ...returnedBlog, user: blog.user },
           ),
         );
       })
@@ -98,6 +98,24 @@ const App = () => {
           "error",
         );
       });
+  };
+
+  const handleRemove = (id) => {
+    const blog = blogs.find((b) => b.id === id);
+
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
+      blogService
+        .remove(id)
+        .then(() => {
+          setBlogs(blogs.filter((b) => b.id !== id));
+        })
+        .catch((error) => {
+          showNotification(
+            error.response?.data?.error || "removing blog failed",
+            "error",
+          );
+        });
+    }
   };
 
   const loginForm = () => (
@@ -167,7 +185,13 @@ const App = () => {
       {blogs
         .sort((a, b) => b.likes - a.likes)
         .map((blog) => (
-          <Blog key={blog.id} blog={blog} handleLike={handleLike} />
+          <Blog
+            key={blog.id}
+            blog={blog}
+            handleLike={handleLike}
+            currentUser={user}
+            handleRemove={handleRemove}
+          />
         ))}
     </div>
   );
