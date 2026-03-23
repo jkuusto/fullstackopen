@@ -1,5 +1,6 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
+const User = require("../models/user");
 
 blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
@@ -60,6 +61,11 @@ blogsRouter.delete("/:id", async (request, response) => {
       .json({ error: "you are not authorized to delete this blog" });
   }
   await Blog.findByIdAndDelete(request.params.id);
+
+  await User.findByIdAndUpdate(user._id, {
+    $pull: { blogs: request.params.id },
+  });
+
   response.status(204).end();
 });
 
