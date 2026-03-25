@@ -62,6 +62,7 @@ const App = () => {
       const user = await loginService.login({ username, password });
 
       window.localStorage.setItem(STORAGE_USER, JSON.stringify(user));
+      blogService.setToken(user.token);
       setUser(user);
       setUsername("");
       setPassword("");
