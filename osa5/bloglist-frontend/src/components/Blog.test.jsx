@@ -11,15 +11,16 @@ describe("Blog component", () => {
     user: { username: "testuser", name: "Test User" },
     likes: "7",
   };
-
   const mockCurrentUser = { username: "testuser", name: "Test User" };
+  let mockHandleLike;
 
   beforeEach(() => {
+    mockHandleLike = vi.fn();
     render(
       <Blog
         blog={blog}
         currentUser={mockCurrentUser}
-        handleLike={vi.fn()}
+        handleLike={mockHandleLike}
         handleRemove={vi.fn()}
       />,
     );
@@ -40,5 +41,17 @@ describe("Blog component", () => {
     expect(screen.getByText("www.example.com")).toBeDefined();
     expect(screen.getByText("likes 7", { exact: false })).toBeDefined();
     expect(screen.getByText("Test User")).toBeDefined();
+  });
+
+  test("calls handleLike twice when like button is pressed twice", async () => {
+    const user = userEvent.setup();
+    const viewButton = screen.getByText("view");
+    await user.click(viewButton);
+
+    const likeButton = screen.getByText("like");
+    await user.click(likeButton);
+    await user.click(likeButton);
+
+    expect(mockHandleLike.mock.calls).toHaveLength(2);
   });
 });
