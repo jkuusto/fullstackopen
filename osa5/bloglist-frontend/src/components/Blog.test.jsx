@@ -26,11 +26,23 @@ describe("Blog component", () => {
     );
   });
 
-  test("renders title", async () => {
-    const element = await screen.findByText("Title for Testing", {
+  test("renders title and author but not url nor likes by default", async () => {
+    const title = await screen.findByText("Title for Testing", {
       exact: false,
     });
-    expect(element).toBeDefined();
+    const author = await screen.findByText("Test Author", {
+      exact: false,
+    });
+    const url = await screen.queryByText("www.example.com", {
+      exact: false,
+    });
+    const likes = await screen.queryByText("likes 7", {
+      exact: false,
+    });
+    expect(title).toBeDefined();
+    expect(author).toBeDefined();
+    expect(url).toBeNull();
+    expect(likes).toBeNull();
   });
 
   test("shows url, likes, and user after clicking view button", async () => {
